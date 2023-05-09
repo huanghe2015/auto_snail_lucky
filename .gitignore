@@ -1,5 +1,8 @@
+#NodeJS
 /package-lock.json
 /node_modules
+#VScode related
+.vscode
 # TTS Temproray folder
 voice/
 # History Folder

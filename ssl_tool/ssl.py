@@ -29,20 +29,24 @@ session = device.attach(pid)
 with open('agent.js') as f:
     script = session.create_script(f.read())
 
+
 def show_data(headers, payload):
     try:
         _headers = headers.decode('utf-8')
         headers = _headers
-    except:
-        pass
+    except Exception as e:
+        print('解析Header出错啦！',e)
 
     try:
         _payload = payload.decode('utf-8')
         payload = _payload
-    except:
-        pass
+    except Exception as e:
+        print('解析Payload出错啦！', e)
+    result = '........\n' + headers + '\n\n' + payload
+    print(result)
+    with open('record.txt', 'a+') as f:
+        f.write(result)
 
-    print(headers, '\n\n', payload)
 
 # “请求-响应”对，使用 SSL 句柄作为 KEY
 pairs = dict()

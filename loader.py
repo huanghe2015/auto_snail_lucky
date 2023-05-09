@@ -37,7 +37,7 @@ for snail_lucky in device.enumerate_processes():
         break
 
 if pid == 0:
-    pid = device.spawn('com.snail.android.lucky')
+    pid = device.spawn('com.eg.android.AlipayGphone')
     device.resume(pid)
 
 # app = device.get_frontmost_application()
@@ -1374,7 +1374,7 @@ def lottery(s, item, available_quota, limit_quota):
 
         # retries = 0
         # yaoyiyao_ret = None
-        
+
         # # 按几羊源码，每次间隔时间比上一次多 100ms，一共尝试 7 次
         # # com.snail.android.lucky.playbiz.ui.d.c$u -> a -> onResult -> run -> postDelayed
         # while (retries < 7
@@ -1386,7 +1386,7 @@ def lottery(s, item, available_quota, limit_quota):
         #     yaoyiyao_ret = alipay_mobile_aggrbillinfo_group_yaoyiyao(s, lottery_ret['lotteryRecordId'])
         #     time.sleep(0.1 * retries)
         #     retries += 1
-# 
+#
         # if (yaoyiyao_ret['success']
         #     and 'groupRecords' in yaoyiyao_ret
         #     and len(yaoyiyao_ret['groupRecords']) == 2

@@ -1,6 +1,8 @@
 #NodeJS
 /package-lock.json
 /node_modules
+#record data folder
+record
 #VScode related
 .vscode
 # TTS Temproray folder

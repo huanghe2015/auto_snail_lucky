@@ -44,7 +44,9 @@ def show_data(headers, payload):
         print('解析Payload出错啦！', e)
     result = '........\n' + headers + '\n\n' + payload
     print(result)
-    with open('record.txt', 'a+') as f:
+    # 记录结果
+    record_file_name = f"record/{time.strftime('%Y-%m-%d, %H:%M:%S')}.txt"
+    with open(record_file_name, 'a+') as f:
         f.write(result)
 
 

@@ -45,9 +45,9 @@ def show_data(headers, payload):
     result = '........\n' + headers + '\n\n' + payload
     print(result)
     # 记录结果
-    record_file_name = f"record/{time.strftime('%Y-%m-%d, %H:%M:%S')}.txt"
-    with open(record_file_name, 'a+') as f:
-        f.write(result)
+    # record_file_name = f"record/{time.strftime('%Y-%m-%d_%H:%M:%S')}.txt"
+    # with open(record_file_name, 'a+') as f:
+    #     f.write(result)
 
 
 # “请求-响应”对，使用 SSL 句柄作为 KEY

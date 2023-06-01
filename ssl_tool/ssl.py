@@ -1,6 +1,7 @@
 import os
 import frida
 import time
+
 # import zlib
 import gzip
 
@@ -26,28 +27,32 @@ if pid == 0:
 print(pid)
 
 session = device.attach(pid)
-with open('agent.js') as f:
+with open("agent.js") as f:
     script = session.create_script(f.read())
 
 
 def show_data(headers, payload):
     try:
-        _headers = headers.decode('utf-8')
+        _headers = headers.decode("utf-8")
         headers = _headers
     except Exception as e:
-        print('解析Header出错啦！', e)
+        print("解析Header出错啦！", e)
 
     try:
-        _payload = payload.decode('utf-8')
+        _payload = payload.decode("utf-8")
         payload = _payload
     except Exception as e:
-        print('解析Payload出错啦！', e)
-    result = '........\n' + headers + '\n\n' + payload
+        print("解析Payload出错啦！", e)
+    result = "........\n" + headers + "\n\n" + payload
     print(result)
     # 记录结果
-    # record_file_name = f"record/{time.strftime('%Y-%m-%d_%H:%M:%S')}.txt"
-    # with open(record_file_name, 'a+') as f:
-    #     f.write(result)
+    # script_dir = os.path.dirname(__file__)
+    base_dir = "records"
+    file_name = "{0}.txt".format(time.strftime("%Y%m%d-%H%M%S"))  # 注意路径（Windows）
+    record_file_name = os.path.join(base_dir, file_name)
+    # record_file_name =  file_name
+    with open(record_file_name, "w+") as f:
+        f.write(result)
 
 
 # “请求-响应”对，使用 SSL 句柄作为 KEY
@@ -56,42 +61,42 @@ pairs = dict()
 
 def on_message(message, payload):
     # print(message, payload)
-    if message['type'] != 'send':
+    if message["type"] != "send":
         return
 
-    ssl = message['payload']['ssl']
-    if message['payload']['code'] == 100:  # SSL_write
+    ssl = message["payload"]["ssl"]
+    if message["payload"]["code"] == 100:  # SSL_write
         pairs[ssl] = dict()
-        pairs[ssl]['w'] = payload
-    elif message['payload']['code'] == 200:  # SSL_read
+        pairs[ssl]["w"] = payload
+    elif message["payload"]["code"] == 200:  # SSL_read
         # print(ssl)
         if ssl not in pairs:
             return
 
         # 响应分段合并
-        if payload.find(b'HTTP') == 0:  # 首段
-            pairs[ssl]['r'] = bytearray(payload)
+        if payload.find(b"HTTP") == 0:  # 首段
+            pairs[ssl]["r"] = bytearray(payload)
         else:  # 后面的分段
-            if 'r' not in pairs[ssl]:
+            if "r" not in pairs[ssl]:
                 del pairs[ssl]
                 return
 
-            pairs[ssl]['r'].extend(payload)
+            pairs[ssl]["r"].extend(payload)
 
         #########################################################################################################################################################
 
         r_headers = bytes()
         r_payload = bytes()
-        _parts = pairs[ssl]['r'].split(b'\r\n\r\n', 1)
+        _parts = pairs[ssl]["r"].split(b"\r\n\r\n", 1)
         if len(_parts) != 2:
             del pairs[ssl]
-            print('read parts length err =', len(_parts))
+            print("read parts length err =", len(_parts))
             return
 
         # 尝试解压已接收到的响应数据
-        if _parts[0].find(b'Content-Encoding: gzip') >= 0:
+        if _parts[0].find(b"Content-Encoding: gzip") >= 0:
             _data = bytearray()
-            _gzip = _parts[1].split(b'\r\n')
+            _gzip = _parts[1].split(b"\r\n")
             for i in range(1, len(_gzip), 2):  # 跳过长度
                 _data.extend(_gzip[i])
 
@@ -111,21 +116,21 @@ def on_message(message, payload):
 
         w_headers = bytes()
         w_payload = bytes()
-        _parts = pairs[ssl]['w'].split(b'\r\n\r\n', 1)
+        _parts = pairs[ssl]["w"].split(b"\r\n\r\n", 1)
         if len(_parts) != 2:
             del pairs[ssl]
-            print('write parts length err =', len(_parts))
+            print("write parts length err =", len(_parts))
             return
 
         # 尝试解压已接收到的请求数据
-        if _parts[0].find(b'Content-Encoding: gzip') >= 0:
+        if _parts[0].find(b"Content-Encoding: gzip") >= 0:
             _data = bytearray()
             try:
                 # _data = zlib.decompress(_parts[1], 16 + zlib.MAX_WBITS)
                 _data = gzip.decompress(_parts[1])
             except Exception as e:
                 del pairs[ssl]
-                print('write payload decompress err =', _parts[1])
+                print("write payload decompress err =", _parts[1])
                 return
 
             w_headers = _parts[0]
@@ -134,17 +139,17 @@ def on_message(message, payload):
             w_headers = _parts[0]
             w_payload = _parts[1]
 
-        print('*' * 120)
+        print("*" * 120)
         show_data(w_headers, w_payload)
-        print('\n')
+        print("\n")
         show_data(r_headers, r_payload)
-        print('*' * 120)
+        print("*" * 120)
         del pairs[ssl]
 
 
-script.on('message', on_message)
+script.on("message", on_message)
 script.load()
-print('请随意点击几羊界面以产生 HTTPS 请求...')
+print("请随意点击几羊界面以产生 HTTPS 请求...")
 
 input()  # 按下 Enter 退出
 # while 1:
